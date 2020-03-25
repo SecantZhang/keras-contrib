@@ -106,3 +106,5 @@ contrib_docs/theme/img/*
 .pytest_cache/*
 
 contrib_docs/_build/
+
+.vscode

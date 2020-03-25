@@ -92,7 +92,7 @@ def WideResidualNetwork(depth=28, width=8, dropout_rate=0.0,
     input_shape = _obtain_input_shape(input_shape,
                                       default_size=32,
                                       min_size=8,
-                                      data_format=K.image_dim_ordering(),
+                                      data_format=K.image_data_format(),
                                       require_flatten=include_top)
 
     if input_tensor is None:
@@ -120,7 +120,7 @@ def WideResidualNetwork(depth=28, width=8, dropout_rate=0.0,
         if (depth == 28) and (width == 8) and (dropout_rate == 0.0):
             # Default parameters match. Weights for this model exist:
 
-            if K.image_dim_ordering() == 'th':
+            if K.image_data_format() == 'th':
                 if include_top:
                     h5_file = 'wide_resnet_28_8_th_dim_ordering_th_kernels.h5'
                     weights_path = get_file(h5_file,
@@ -235,11 +235,11 @@ def __conv3_block(input, k=1, dropout=0.0):
 def ___conv4_block(input, k=1, dropout=0.0):
     init = input
 
-    channel_axis = 1 if K.image_dim_ordering() == 'th' else -1
+    channel_axis = 1 if K.image_data_format() == 'th' else -1
 
     # Check if input number of filters is same as 64 * k, else
     # create convolution2d for this input
-    if K.image_dim_ordering() == 'th':
+    if K.image_data_format() == 'th':
         if init._keras_shape[1] != 64 * k:
             init = Conv2D(64 * k, (1, 1), activation='linear', padding='same')(init)
     else:
@@ -284,19 +284,19 @@ def __create_wide_residual_network(nb_classes, img_input, include_top, depth=28,
     x = __conv1_block(img_input)
     nb_conv = 4
 
-    for i in range(N):
+    for _ in range(N):
         x = __conv2_block(x, width, dropout)
         nb_conv += 2
 
     x = MaxPooling2D((2, 2))(x)
 
-    for i in range(N):
+    for _ in range(N):
         x = __conv3_block(x, width, dropout)
         nb_conv += 2
 
     x = MaxPooling2D((2, 2))(x)
 
-    for i in range(N):
+    for _ in range(N):
         x = ___conv4_block(x, width, dropout)
         nb_conv += 2
 
